@@ -1,0 +1,14 @@
+<start>      ::= <choosebins> ' remove_pieces_from_bins ' <repack>
+<choosebins> ::= <type> | <type> ' ' <choosebins>
+<type>       ::= 'highest_filled ' <num> ' ' <ignore> ' ' <remove>
+               | 'lowest_filled ' <num> ' ' <ignore> ' ' <remove>
+               | 'random_bins ' <num> ' ' <ignore> ' ' <remove>
+               | 'gap_lessthan ' <num> ' ' <threshold> ' ' <ignore> ' ' <remove>
+               | 'num_of_pieces ' <num> ' ' <numpieces> ' ' <ignore> ' ' <remove>
+<num>        ::= '2' | '5' | '10' | '20' | '50'
+<threshold>  ::= 'average' | 'minimum' | 'maximum'
+<numpieces>  ::= '1' | '2' | '3' | '4' | '5' | '6'
+<ignore>     ::= '0.995' | '0.997' | '0.999' | '1.0' | '1.1'
+<remove>     ::= 'ALL' | 'ONE'
+<repack>     ::= 'best_fit_decreasing' | 'worst_fit_decreasing' | 'first_fit_decreasing'
+

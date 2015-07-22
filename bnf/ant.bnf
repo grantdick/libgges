@@ -1,0 +1,13 @@
+## This is the BNF grammar used for the Santa Fe Ant Trail problem in
+## our GECCO 2015 paper. Note that the terminal symbols are changed
+## from that reported in Figure 1 of that paper, as we wrote our own
+## execution engine rather than relying on an external
+## library. However, the structure of the non-terminals and production
+## rules is unchanged, so the search space is the same (just the
+## syntactic sugar has changed a little)
+<prog>      ::= 'begin ' <code> ' end'
+<code>      ::= <line> | <code> ' ' <line>
+<line>      ::= <condition> | <op>
+<condition> ::= 'ifa begin ' <opcode> ' end begin ' <opcode> ' end'
+<opcode>    ::= <op> | <opcode> ' ' <op>
+<op>        ::= 'tl' | 'tr' | 'mv'

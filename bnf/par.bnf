@@ -1,0 +1,9 @@
+## This is the BNF grammar for the n-bit even parity problem, as used
+## in our GECCO 2015 paper. It is essentially re-creating the search
+## space used in standard GP
+<B> ::= <B> ' and ' <B>
+      | <B> ' or ' <B>
+      | 'not ( ' <B> ' and ' <B> ' )'
+      | 'not ( ' <B> ' or ' <B> ' )'
+      | 'b0' ## the remaining data bits are added to the grammar
+             ## programmatically after the problem size is known

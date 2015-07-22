@@ -1,0 +1,16 @@
+## This is the BNF grammar used for the n-bit Boolean Multiplexer
+## problem in our GECCO 2015 paper. The grammar is essentially
+## recreating the search space of standard GP using the functions and
+## terminals defined by Koza
+##
+## This is the same grammar that was used in Murphy et al.'s 2010
+## paper on Tree-Adjunct Grammatical Evolution, but with minor changes
+## to the terminal symbols to reflect differences in the execution
+## environment (the structure of the non-terminals and production
+## rules is unchanged)
+<B> ::= '( ' <B> ' ) and ( ' <B> ' )'
+      | '( ' <B> ' ) or ( ' <B> ' )'
+      | 'not ( ' <B> ' )'
+      | 'if ( ' <B> ' , ' <B> ' , ' <B> ' )'
+      | 'b0' ## the remaining data and address bits are added to the
+             ## grammar programmatically once the problem size is known

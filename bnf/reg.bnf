@@ -1,0 +1,15 @@
+## This is the symbolic regression BNF grammar used in our 2015 GECCO
+## paper. Note that our grammar parser ignores whitespace not
+## explicitly enclosed in quotes, so this grammar looks slightly
+## different from that in Figure 1 of the paper. However, the
+## behaviour is unchanged.
+<prog>         ::= <expr>
+<expr>         ::= <expr> ' ' <op> ' ' <expr>
+                 | '( ' <expr> ' ' <op> ' ' <expr> ' )'
+                 | <pre-op> ' ( ' <expr> ' )'
+                 | <protected-op> | <var>
+<op>           ::= '+' | '*' | '-'
+<protected-op> ::= 'pdiv ( ' <expr> ' ' <expr> ' )'
+<pre-op>       ::= 'sin' | 'cos' | 'exp' | 'inv' | 'plog'
+<var>          ::=  '1.0' | 'x1' ## other variables added programmatically
+                                 ## once problem size is known
