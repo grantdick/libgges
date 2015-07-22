@@ -115,7 +115,6 @@ static int local_search(struct packing_instance *instance, char *source)
     reset_packing_instance(instance);
     initial_packing(instance);
     solution = copy_packing_instance(instance);
-    /* fprintf(stderr, "Packed int %d; Buffer: %s\n", number_of_bins_used(instance), source); */
 
     buffer = malloc(strlen(source) + 1);
 	for (i = 0; i < 100; ++i) {
@@ -124,8 +123,7 @@ static int local_search(struct packing_instance *instance, char *source)
 
         strcpy(buffer, source);
 		execute(strtok(buffer, " "), instance, remove);
-        /* fprintf(stderr, "Repacked int %d\n", number_of_bins_used(instance)); */
-        /* exit(0); */
+
         if (measure_instance_quality(solution) > measure_instance_quality(instance)) {
             replace_packing_instance(instance, solution);
         }
@@ -165,8 +163,6 @@ static void reset(struct gges_parameters *params, int G,
                   struct gges_individual **members, int N,
                   void *args)
 {
-    if (G != 0 && N == 1 && ((G + 1) % 50) != 0) return;
-
     shuffle_packing_list(instances[0]);
 }
 
