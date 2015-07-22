@@ -3,7 +3,7 @@ libgges: Grammar-Guided Evolutionary Search
 
 This project was created to support the experimental component of the paper:
 
-P. A. Whigham, G. Dick, J. Maclaurin, C. A. Owen (2015) "Examining the 'Best of Both Worlds' of Grammatical Evolution" in Proceedings of the 2015 on Genetic and Evolutionary Computation Conference, pp. 1111-1118
+P. A. Whigham, G. Dick, J. Maclaurin, C. A. Owen (2015) "Examining the 'Best of Both Worlds' of Grammatical Evolution" in Proceedings of the 2015 Conference on Genetic and Evolutionary Computation (GECCO 2015), pp. 1111-1118, ACM Press
 
 If you use this project in your work, then a reference to the above
 work would be greatly appreciated.
