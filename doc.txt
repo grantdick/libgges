@@ -1,0 +1,84 @@
+COMPILING THE PROJECT:
+The project should compile on any platform with gcc (or similar) and
+make. It is designed to be self-contained and, beyond the standard C
+and POSIX libraries, should compile without any problems. To compile
+the base library and associated demo applications, please run:
+  make
+from the root directory of the project. This will create a handful of
+directories (specifically: build, dist, and include) under which the
+compiled outputs will be found (include contains the header files for
+the project, while the dist directory contains the library and
+associated executables).
+
+RUNNING THE DEMO APPLICATIONS:
+The project includes a number of demo applications that implement the
+benchmark problems used in our GECCO paper. Each program is named
+after its respective benchmark: ant, multiplexer, parity, and
+regression (when compiled, these will be under the dist
+directory). All the programs run with a similar set of arguments
+(assuming that you run from the root directory of the project):
+
+* for the artificial ant problem -
+    ./dist/ant <path-to-grammar-file>
+  where <path-to-grammar-file> is the path to the grammar that this
+  program will use (for the GECCO experiments, this was the BNF
+  grammar found in the file ./bnf/ant.bnf)
+
+* for the multiplexer problem -
+    ./dist/multiplexer <path-to-grammar-file> <size>
+  where <path-to-grammar-file> is the path to the grammar that this
+  program will use (for the GECCO experiments, this was the BNF
+  grammar found in the file ./bnf/mux.bnf) and <size> is the problem
+  size (e.g., 11 for an 11-bit problem as used in the paper)
+
+* for the parity problem -
+    ./dist/parity <path-to-grammar-file> <size>
+  where <path-to-grammar-file> is the path to the grammar that this
+  program will use (for the GECCO experiments, this was the BNF
+  grammar found in the file ./bnf/par.bnf) and <size> is the problem
+  size (e.g., 5 for a 5-bit problem as used in the paper)
+
+* for the symbolic regression problem -
+    ./dist/regression <path-to-grammar-file> <data-file> <fold-file> <fold-instance>
+  where <path-to-grammar-file> is the path to the grammar that this
+  program will use (for the GECCO experiments, this was the BNF
+  grammar found in the file ./bnf/reg.bnf), <data-file> is the path to
+  the file that contains the data set upon which regression is
+  performed, <fold-file> is the path to the file that describes
+  the training and testing splits that will be used for this data set,
+  and <fold-instance> is the index into the fold file to determine
+  the actual training and testing split. Data sets for this
+  application are simple tab-separated files, with one instance per
+  line of the file, and the last column in the file representing the
+  dependent variable. Fold files are tab-separated files in which each
+  line contains the indices to the instances from the data set that
+  will be used for TESTING (with the remaining instances split into
+  the given training set).
+
+Once the basic arguments have been supplied, each program accepts
+additional arguments for configuration. This can be done either
+through the supplied ini files in the config directory (in which case,
+configuration is done by supplying the name of one or more of the
+files on the command line), or through -p switches (with the next
+argument after -p being the specific configuration to pass into the
+program). For example, to run the artificial ant problem using
+grammatical evolution, but for 10 generations instead of 50, the
+following command line will work:
+  ./dist/ant bnf/ant.bnf config/gecco2015-ge.ini -p generations=10
+the order of parameters is taken first-to-last (i.e., in the case of
+configuration supplied multiple times, the last configuration on the
+command line is the one that is used)
+
+CREATING YOUR OWN APPLICATIONS:
+There is a trivial application in the demo directory (called
+templatemain.c) from which your own applications can be
+bootstrapped. This application contains all the code to start the
+system, read arguments, and so on, and all that is needed is to supply
+your own evaluation routines for your problem at hand. A more useful
+tutorial will be provided when I have a bit more time, so if you want
+to get started now, and need assistance, then please email me
+(grant.dick@otago.ac.nz) and I'll gladly help out.
+
+HELP!:
+I'm happy to take questions/comments/bug fixes, etc., so please email
+grant.dick@otago.ac.nz if you have any queries.
