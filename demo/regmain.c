@@ -19,6 +19,8 @@
 #include "data.h"
 #include "parameters.h"
 
+#define PROTECTED_OPERATORS
+
 struct data_set_details {
     int n_features;
 
@@ -144,7 +146,11 @@ static double operator(char *token, double a, double b)
     if (strncmp(token, "+", 1) == 0) return a + b;
     if (strncmp(token, "-", 1) == 0) return a - b;
     if (strncmp(token, "*", 1) == 0) return a * b;
+#ifdef PROTECTED_OPERATORS
+    if (strncmp(token, "/", 1) == 0) return safe_divide(a, b);
+#else
     if (strncmp(token, "/", 1) == 0) return a / b;
+#endif
     if (strncmp(token, "%", 1) == 0) return fmod(a, b);
     return NAN;
 }

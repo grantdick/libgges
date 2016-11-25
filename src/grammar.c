@@ -267,7 +267,7 @@ int gges_query_productions(struct gges_bnf_production **res,
 
     c = 0;
     for (i = 0; i < nt->size; ++i) {
-        if (nt->productions[i].min_depth > max_depth) continue;
+        if (max_depth > 0 && nt->productions[i].min_depth > max_depth) continue;
         if (recursive_only && !(nt->productions[i].recursive)) continue;
 
         res[c++] = nt->productions + i;

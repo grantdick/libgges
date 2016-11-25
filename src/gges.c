@@ -82,7 +82,7 @@ static void check_depth_parameters(struct gges_parameters *params,
          * their setting is invalid */
         if (params->init_min_depth > 0) {
             fprintf(stderr, "%s:%d - Warning! Minimum depth of grammar is "
-                    "greater than the defined minimum derivation tree depth. "
+                    "greater than the defined minimum initial derivation tree depth. "
                     "Setting minimum derivation tree depth to minimum depth "
                     "of grammar.\n",
                     __FILE__, __LINE__);
@@ -92,17 +92,44 @@ static void check_depth_parameters(struct gges_parameters *params,
         min_depth = params->init_min_depth;
     }
 
-    /* if the minimum tree depth that we wish to create is actually
+    /* if the minimum tree depths that we wish to create are actually
      * larger than the supplied maximum depth, then overwrite the user
      * parameter and use the minimum depth */
     if (min_depth > params->init_max_depth) {
+        if (params->init_max_depth > 0) {
+            fprintf(stderr, "%s:%d - Warning! Minimum derivation tree depth is "
+                    "greater than the defined maximum initial derivation tree depth. "
+                    "Setting maximum derivation tree depth to minimum depth of "
+                    "grammar.\n",
+                    __FILE__, __LINE__);
+        }
+        params->init_max_depth = min_depth;
+    }
+    if (min_depth > params->init_max_depth) {
+        if (params->init_max_depth > 0) {
+            fprintf(stderr, "%s:%d - Warning! Minimum derivation tree depth is "
+                    "greater than the defined maximum derivation tree depth. "
+                    "Setting maximum derivation tree depth to minimum depth of "
+                    "grammar.\n",
+                    __FILE__, __LINE__);
+        }
+        params->init_max_depth = min_depth;
+    }
+    if (min_depth > params->maximum_mutation_depth && params->maximum_mutation_depth) {
+        fprintf(stderr, "%s:%d - Warning! Minimum derivation tree depth is "
+                "greater than the defined maximum tree mutation depth. "
+                "Setting maximum tree mutation depth to minimum depth of "
+                "grammar.\n",
+                __FILE__, __LINE__);
+        params->maximum_mutation_depth = min_depth;
+    }
+    if (min_depth > params->maximum_tree_depth && params->maximum_tree_depth > 0) {
         fprintf(stderr, "%s:%d - Warning! Minimum derivation tree depth is "
                 "greater than the defined maximum derivation tree depth. "
                 "Setting maximum derivation tree depth to minimum depth of "
                 "grammar.\n",
                 __FILE__, __LINE__);
-
-        params->init_max_depth = min_depth;
+        params->maximum_tree_depth = min_depth;
     }
 }
 
