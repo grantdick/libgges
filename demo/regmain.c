@@ -19,8 +19,6 @@
 #include "data.h"
 #include "parameters.h"
 
-#define PROTECTED_OPERATORS
-
 struct data_set_details {
     int n_features;
 
@@ -39,9 +37,20 @@ static double safe_divide(double a, double b)
 {
     return (b == 0) ? 1 : a / b;
 }
+
 static double safe_log(double a)
 {
     return (a == 0) ? 0 : log(fabs(a));
+}
+
+static double safe_exp(double a)
+{
+    return (fabs(a) <= 30) ? exp(0) : (a < 0 ? 0 : exp(30));
+}
+
+static double safe_sqrt(double a)
+{
+    return sqrt(fabs(a));
 }
 
 static void push_number(double val, double **stack, int *n, int *s)
@@ -95,6 +104,8 @@ static bool is_function(char *token)
 
     if (strncmp(token, "plog", 4) == 0) return true;
     if (strncmp(token, "pdiv", 4) == 0) return true;
+    if (strncmp(token, "pinv", 4) == 0) return true;
+    if (strncmp(token, "pexp", 4) == 0) return true;
     if (strncmp(token, "psqrt", 5) == 0) return true;
 
     return false;
@@ -116,7 +127,11 @@ static double function(char *token, double *output, int *n_o)
 
     if (strncmp(token, "plog", 4) == 0) return safe_log(pop_number(output, n_o));
     if (strncmp(token, "pdiv", 4) == 0) return safe_divide(pop_number(output, n_o), pop_number(output, n_o));
-    if (strncmp(token, "psqrt", 5) == 0) return sqrt(fabs(pop_number(output, n_o)));
+    if (strncmp(token, "pinv", 4) == 0) return safe_divide(1, pop_number(output, n_o));
+    if (strncmp(token, "pexp", 4) == 0) return safe_exp(pop_number(output, n_o));
+    if (strncmp(token, "psqrt", 5) == 0) return safe_sqrt(pop_number(output, n_o));
+
+    fprintf(stderr, "WARNING: skipping unknown function: %s\n", token);
 
     return NAN;
 }
@@ -128,6 +143,8 @@ static bool is_operator(char *token)
     if (strncmp(token, "*", 1) == 0) return true;
     if (strncmp(token, "/", 1) == 0) return true;
     if (strncmp(token, "%", 1) == 0) return true;
+    if (strncmp(token, "÷", 1) == 0) return true;
+
     return false;
 }
 
@@ -138,6 +155,8 @@ static int operator_precedence(char *token)
     if (strncmp(token, "*", 1) == 0) return 2;
     if (strncmp(token, "/", 1) == 0) return 2;
     if (strncmp(token, "%", 1) == 0) return 2;
+    if (strncmp(token, "÷", 1) == 0) return 2;
+
     return 0;
 }
 
@@ -146,12 +165,12 @@ static double operator(char *token, double a, double b)
     if (strncmp(token, "+", 1) == 0) return a + b;
     if (strncmp(token, "-", 1) == 0) return a - b;
     if (strncmp(token, "*", 1) == 0) return a * b;
-#ifdef PROTECTED_OPERATORS
-    if (strncmp(token, "/", 1) == 0) return safe_divide(a, b);
-#else
     if (strncmp(token, "/", 1) == 0) return a / b;
-#endif
     if (strncmp(token, "%", 1) == 0) return fmod(a, b);
+    if (strncmp(token, "÷", 1) == 0) return safe_divide(a, b);
+
+    fprintf(stderr, "WARNING: skipping unknown operator: %s\n", token);
+
     return NAN;
 }
 

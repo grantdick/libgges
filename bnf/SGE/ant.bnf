@@ -1,0 +1,10 @@
+## This is the grammar used in the GP&EM paper on SGE to define the
+## artificial ant problem. It is essentially the grammar used by
+## O'Neill and Ryan in the 2003 book (page 55), but with an additional
+## start non-terminal. We have modified the language of the terminal
+## symbols here from python to our interpreter's, but otherwise there
+## are no changes.
+<start> ::= 'begin ' <code> ' end'
+<code>  ::= <line> | <code> ' ' <line>
+<line>  ::= 'ifa begin ' <line> ' end begin ' <line> ' end' | <op>
+<op>    ::= 'tl' | 'tr' | 'mv'

@@ -268,6 +268,9 @@ static void generational_model(struct gges_parameters *params,
 {
     struct gges_individual *daughter, *son;
     int i, mother, father;
+    int elitism_count;
+
+    elitism_count = params->elitism_factor < 1 ? params->elitism_factor * pop->N : params->elitism_factor;
 
     /* breed the required number of offspring. If we are preserving an
      * odd number of individuals from the previous generation, then we
@@ -277,7 +280,7 @@ static void generational_model(struct gges_parameters *params,
      * align with that. This placeholder offspring will get
      * overwritten in the elitism process (without being
      * evaluated!) */
-    for (i = params->elitism_count - (params->elitism_count % 2); i < pop->N; i += 2) {
+    for (i = elitism_count - (elitism_count % 2); i < pop->N; i += 2) {
         /* selection of parents */
         daughter = gen->members[i];
         son      = gen->members[i + 1];
@@ -292,13 +295,13 @@ static void generational_model(struct gges_parameters *params,
     }
 
     /* elitism, including re-evaluation, if required */
-    for (i = 0; i < params->elitism_count; ++i) {
+    for (i = 0; i < elitism_count; ++i) {
         gges_reproduction(params, pop->members[i], gen->members[i]);
         if (!params->cache_fitness) evaluator(params, gen->members[i], args);
     }
 
     /* now, evaluate the remaining offspring */
-    for (i = params->elitism_count; i < pop->N; ++i) {
+    for (i = elitism_count; i < pop->N; ++i) {
         /* map the individuals, if not straight copies of their
          * parents */
         if (!gen->members[i]->mapped) gges_map_individual(params, grammar, gen->members[i]);
@@ -516,6 +519,12 @@ struct gges_population *gges_run_system(struct gges_parameters *params,
 
     gges_release_population(gen);
 
+    /* free up the genome structure information used in SGE - this is
+     * really only needed if we're using SGE, but the array will be
+     * NULL if we're not using SGE, so a blanket call to free won't do
+     * any harm */
+    free(params->sge_gene_sizes);
+
     return pop;
 }
 
@@ -561,7 +570,7 @@ struct gges_parameters *gges_default_parameters()
 
     def->model = CONTEXT_FREE_GP;
     def->generation_method = GENERATIONAL;
-    def->elitism_count = 1;
+    def->elitism_factor = 1;
 
     def->cache_fitness = true;
 
@@ -588,6 +597,9 @@ struct gges_parameters *gges_default_parameters()
     def->node_selection_method = PICK_NODE_KOZA_90_10;
     def->maximum_tree_depth = 17;
     def->maximum_mutation_depth = 4;
+
+    def->sge_gene_sizes = NULL;
+    def->sge_genome_size = 0;
 
     def->rnd = rnd;
 

@@ -1,0 +1,46 @@
+## This is a grammar supplied as part of the SGE python codebase to
+## implement the 5-bit even parity problem. This is essentially the
+## same as the grammar that we used in our GECCO paper, but with an
+## explicit start non-terminal. Here, we have also explicitly expanded
+## the recursive elements to create new non-terminals and productions
+## up to a depth of 6. The only other change is that we add additional
+## terminal productions for the data bits programmatically, so only
+## the first bit is needed here
+<start> ::= <B>
+<B>     ::= <B_0> ' and ' <B_0>
+          | <B_0> ' or ' <B_0>
+          | 'not ( ' <B_0> ' and ' <B_0> ' )'
+          | 'not ( ' <B_0> ' or ' <B_0> ' )'
+		  | <bit>
+<B_0>   ::= <B_1> ' and ' <B_1>
+          | <B_1> ' or ' <B_1>
+          | 'not ( ' <B_1> ' and ' <B_1> ' )'
+          | 'not ( ' <B_1> ' or ' <B_1> ' )'
+		  | <bit>
+<B_1>   ::= <B_2> ' and ' <B_2>
+          | <B_2> ' or ' <B_2>
+          | 'not ( ' <B_2> ' and ' <B_2> ' )'
+          | 'not ( ' <B_2> ' or ' <B_2> ' )'
+		  | <bit>
+<B_2>   ::= <B_3> ' and ' <B_3>
+          | <B_3> ' or ' <B_3>
+          | 'not ( ' <B_3> ' and ' <B_3> ' )'
+          | 'not ( ' <B_3> ' or ' <B_3> ' )'
+		  | <bit>
+<B_3>   ::= <B_4> ' and ' <B_4>
+          | <B_4> ' or ' <B_4>
+          | 'not ( ' <B_4> ' and ' <B_4> ' )'
+          | 'not ( ' <B_4> ' or ' <B_4> ' )'
+		  | <bit>
+<B_4>   ::= <B_5> ' and ' <B_5>
+          | <B_5> ' or ' <B_5>
+          | 'not ( ' <B_5> ' and ' <B_5> ' )'
+          | 'not ( ' <B_5> ' or ' <B_5> ' )'
+		  | <bit>
+<B_5>   ::= <bit> ' and ' <bit>
+          | <bit> ' or ' <bit>
+          | 'not ( ' <bit> ' and ' <bit> ' )'
+          | 'not ( ' <bit> ' or ' <bit> ' )'
+		  | <bit>
+<bit>   ::= 'b0' ## the remaining data bits are added to the grammar
+                 ## programmatically after the problem size is known

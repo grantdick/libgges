@@ -26,6 +26,7 @@ extern "C" {
         union {
             struct gges_ge_codon_list *list;
             struct gges_cfggp_node *tree;
+            struct gges_sge_genome *genome;
         } representation;
 
         /* structure to hold the mapping from "genotype" to

@@ -7,6 +7,7 @@
 #include "individual.h"
 #include "cfggp.h"
 #include "ge.h"
+#include "sge.h"
 
 #include "alloc.h"
 
@@ -45,6 +46,8 @@ struct gges_individual *gges_create_individual(struct gges_parameters *params)
     ind->type = params->model;
     if (ind->type == GRAMMATICAL_EVOLUTION) {
         ind->representation.list = gges_ge_create_codon_list();
+    } else if (ind->type == STRUCTURED_GRAMMATICAL_EVOLUTION) {
+        ind->representation.genome = gges_sge_create_genome();
     } else {
         ind->representation.tree = NULL;
     }
@@ -64,6 +67,8 @@ void gges_release_individual(struct gges_individual *ind)
 {
     if (ind->type == GRAMMATICAL_EVOLUTION) {
         gges_ge_release_codon_list(ind->representation.list);
+    } else if (ind->type == STRUCTURED_GRAMMATICAL_EVOLUTION) {
+        gges_sge_release_genome(ind->representation.genome);
     } else {
         gges_cfggp_release_tree(ind->representation.tree);
     }
@@ -97,6 +102,8 @@ bool gges_map_individual(struct gges_parameters *params,
     if (ind->type == GRAMMATICAL_EVOLUTION) {
         ind->mapped = gges_ge_map_codons(g, ind->representation.list, ind->mapping,
                                   params->mapping_wrap_count);
+    } else if (ind->type == STRUCTURED_GRAMMATICAL_EVOLUTION) {
+        ind->mapped = gges_sge_map_genome(g, ind->representation.genome, ind->mapping);
     } else {
         ind->mapped = gges_cfggp_map_tree(ind->representation.tree, ind->mapping);
     }
@@ -114,6 +121,8 @@ struct gges_derivation_tree *gges_derive_individual(
     if (ind->type == GRAMMATICAL_EVOLUTION) {
         return gges_ge_derive(g, ind->representation.list,
                               params->mapping_wrap_count);
+    } else if (ind->type == STRUCTURED_GRAMMATICAL_EVOLUTION) {
+        return gges_sge_derive(g, ind->representation.genome);
     } else {
         return gges_cfggp_derive(ind->representation.tree);
     }
@@ -145,6 +154,13 @@ void gges_init_individual(struct gges_parameters *params,
                                     params->rnd);
             }
         }
+    } else if (ind->type == STRUCTURED_GRAMMATICAL_EVOLUTION) {
+        if (params->sge_gene_sizes == NULL) {
+            params->sge_genome_size = gges_sge_compute_gene_sizes(g, &(params->sge_gene_sizes));
+        }
+        gges_sge_random_init(g, ind->representation.genome,
+                             params->sge_gene_sizes, params->sge_genome_size,
+                             params->rnd);
     } else {
         if (params->sensible_initialisation) {
             gges_cfggp_sensible_init(g, &(ind->representation.tree),
@@ -159,11 +175,8 @@ void gges_init_individual(struct gges_parameters *params,
     }
 
     ind->mapped = gges_map_individual(params, g, ind);
-
     ind->evaluated = false;
-
-    ind->objective = 0;
-    ind->fitness = 0;
+    ind->fitness = GGES_WORST_FITNESS;
 }
 
 void gges_reproduction(struct gges_parameters *params,
@@ -173,6 +186,9 @@ void gges_reproduction(struct gges_parameters *params,
     if (params->model == GRAMMATICAL_EVOLUTION) {
         gges_ge_reproduction(parent->representation.list,
                              clone->representation.list);
+    } else if (params->model == STRUCTURED_GRAMMATICAL_EVOLUTION) {
+        gges_sge_reproduction(parent->representation.genome,
+                              clone->representation.genome);
     } else {
         gges_cfggp_reproduction(parent->representation.tree,
                                 &(clone->representation.tree));
@@ -182,8 +198,9 @@ void gges_reproduction(struct gges_parameters *params,
 
     clone->mapped = parent->mapped;
     clone->evaluated = parent->evaluated;
-    clone->objective = parent->objective;
     clone->fitness = parent->fitness;
+
+    clone->objective = parent->objective;
 }
 
 
@@ -205,6 +222,15 @@ void gges_breed(struct gges_parameters *params,
                                params->fixed_point_crossover,
                                params->crossover_rate, params->mutation_rate,
                                params->rnd);
+    } else if (params->model == STRUCTURED_GRAMMATICAL_EVOLUTION) {
+        /* delegate to Structured GE breeding functions */
+        cloned = gges_sge_breed(g,
+                                mother->representation.genome,
+                                father->representation.genome,
+                                daughter->representation.genome,
+                                son->representation.genome,
+                                params->crossover_rate, params->mutation_rate,
+                                params->rnd);
     } else {
         /* delegate to CFGGP operators */
         cloned = gges_cfggp_breed(g, mother->representation.tree, father->representation.tree,
@@ -218,17 +244,20 @@ void gges_breed(struct gges_parameters *params,
         copy_mapping(mother->mapping, daughter->mapping);
         daughter->mapped = mother->mapped;
         daughter->evaluated = mother->evaluated;
-        daughter->objective = mother->objective;
         daughter->fitness = mother->fitness;
+
+        daughter->objective = mother->objective;
 
         copy_mapping(father->mapping, son->mapping);
         son->mapped = father->mapped;
         son->evaluated = father->evaluated;
-        son->objective = father->objective;
         son->fitness = father->fitness;
+
+        son->objective = father->objective;
     } else {
         daughter->mapped = son->mapped = false;
         daughter->evaluated = son->evaluated = false;
+        daughter->fitness   = son->fitness   = GGES_WORST_FITNESS;
     }
 }
 
@@ -239,18 +268,22 @@ void gges_mapping_append_symbol(struct gges_mapping *mapping, char *token)
 {
     int tlen;
 
-    tlen = strlen(token);
-    /* first, check to see if the string buffer needs
-     * extending, and realloc as required */
-    if ((mapping->l + tlen + 1) > mapping->sz) {
-        while (mapping->sz < (mapping->l + tlen + 1)) mapping->sz += BUFFER_INC;
+    if (mapping) {
+        tlen = strlen(token);
+        /* first, check to see if the string buffer needs
+         * extending, and realloc as required */
+        if ((mapping->l + tlen + 1) > mapping->sz) {
+            while (mapping->sz < (mapping->l + tlen + 1)) mapping->sz += BUFFER_INC;
 
-        mapping->buffer = REALLOC(mapping->buffer, mapping->sz, sizeof(char));
+            mapping->buffer = REALLOC(mapping->buffer, mapping->sz, sizeof(char));
+        }
+
+        /* then, push terminal symbol into stream */
+        strcat(mapping->buffer, token);
+        mapping->l += tlen;
+    } else {
+        fprintf(stdout, "%s", token);
     }
-
-    /* then, push terminal symbol into stream */
-    strcat(mapping->buffer, token);
-    mapping->l += tlen;
 }
 
 

@@ -15,8 +15,9 @@ CFLAGS:=-std=gnu99 -Wall -pedantic -march=native -O2 -g
 IFLAGS:=-I$(INCDIR)
 LFLAGS:=-L$(LIBDIR) -lgges -lm
 
-INC:=$(SRCDIR)/gges.h $(SRCDIR)/grammar.h $(SRCDIR)/cfggp.h $(SRCDIR)/ge.h \
-	$(SRCDIR)/derivation.h $(SRCDIR)/individual.h $(SRCDIR)/mapping.h
+INC:=$(SRCDIR)/gges.h $(SRCDIR)/individual.h \
+	$(SRCDIR)/grammar.h $(SRCDIR)/mapping.h $(SRCDIR)/derivation.h \
+	$(SRCDIR)/cfggp.h $(SRCDIR)/ge.h $(SRCDIR)/sge.h
 
 LIB:=$(LIBDIR)/libgges.a
 BIN:=$(BINDIR)/ant $(BINDIR)/multiplexer $(BINDIR)/parity $(BINDIR)/regression $(BINDIR)/packing \

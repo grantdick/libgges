@@ -1,0 +1,15 @@
+## This is the BNF grammar used in the GP&EM paper for symbolic
+## regression - it is very similar to the grammar used by O'Neill and
+## Ryan in their book (page 50), but includes an inversion operator
+##
+## Note that the interpreter that we use in this codebase is a bit
+## fragile - if there are no spaces around the brackets, then it
+## throws a bit of a wobbly
+<start> ::= <expr>
+<expr>  ::= <expr> ' ' <op> ' ' <expr>
+          | '( ' <expr> ' ' <op> ' ' <expr> ' )'
+          | <pre_op> ' ( ' <expr> ' )'
+          | <var>
+<op>     ::= '+' | '-' | '*' | '÷' ## ÷ is a safe division operator
+<pre_op> ::= 'sin' | 'cos' | 'pexp' | 'plog'| 'pinv'
+<var>    ::= '1.0' | 'x1' ## remaining variables added at runtime

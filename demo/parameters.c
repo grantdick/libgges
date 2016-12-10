@@ -34,7 +34,7 @@ void process_parameter(char *param, struct gges_parameters *params)
     } else if (strncmp(key, "generations", 11) == 0) {
         params->generation_count = atoi(value);
     } else if (strncmp(key, "elitism", 7) == 0) {
-        params->elitism_count = atoi(value);
+        params->elitism_factor = atof(value);
     } else if (strncmp(key, "tourn_size", 10) == 0) {
         params->tournament_size = atoi(value);
     } else if (strncmp(key, "cache", 5) == 0) {
@@ -69,6 +69,8 @@ void process_parameter(char *param, struct gges_parameters *params)
             params->model = CONTEXT_FREE_GP;
         } else if (strncmp(value, "GE", 2) == 0) {
             params->model = GRAMMATICAL_EVOLUTION;
+        } else if (strncmp(value, "SGE", 3) == 0) {
+            params->model = STRUCTURED_GRAMMATICAL_EVOLUTION;
         } else {
             fprintf(stderr, "ERROR: Unknown value for parameter search_method: %s\n", value);
             exit(EXIT_FAILURE);

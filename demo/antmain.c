@@ -16,28 +16,59 @@
 
 #include "parameters.h"
 
-#define NUM_STEPS 400
+#define NUM_FOOD  89
 #define GRID_ROWS 32
 #define GRID_COLS 32
+
+static int NUM_STEPS = 600;
 
 enum orientation { NORTH, EAST, SOUTH, WEST };
 
 static bool grid[GRID_ROWS][GRID_COLS];
 
-static int remaining_steps = NUM_STEPS;
+static int total_steps = 0;
+static int remaining_steps = 0;
 static int consumed = 0;
 static enum orientation agent_orientation = EAST;
 static int agent_row = 0;
 static int agent_col = 0;
+
+static void reset_ant(int num_steps)
+{
+    grid[ 0][ 1] = grid[ 0][ 2] = grid[ 0][ 3] = grid[ 1][ 3] = grid[ 2][ 3] =
+    grid[ 3][ 3] = grid[ 4][ 3] = grid[ 5][ 3] = grid[ 5][ 4] = grid[ 5][ 5] =
+    grid[ 5][ 6] = grid[ 5][ 8] = grid[ 5][ 9] = grid[ 5][10] = grid[ 5][11] =
+    grid[ 5][12] = grid[ 6][12] = grid[ 7][12] = grid[ 8][12] = grid[ 9][12] =
+    grid[11][12] = grid[12][12] = grid[13][12] = grid[14][12] = grid[17][12] =
+    grid[18][12] = grid[19][12] = grid[20][12] = grid[21][12] = grid[22][12] =
+    grid[23][12] = grid[24][11] = grid[24][10] = grid[24][ 9] = grid[24][ 8] =
+    grid[24][ 7] = grid[24][ 4] = grid[24][ 3] = grid[25][ 1] = grid[26][ 1] =
+    grid[27][ 1] = grid[28][ 1] = grid[30][ 2] = grid[30][ 3] = grid[30][ 4] =
+    grid[30][ 5] = grid[29][ 7] = grid[28][ 7] = grid[27][ 8] = grid[27][ 9] =
+    grid[27][10] = grid[27][11] = grid[27][12] = grid[27][13] = grid[27][14] =
+    grid[26][16] = grid[25][16] = grid[24][16] = grid[21][16] = grid[20][16] =
+    grid[19][16] = grid[18][16] = grid[15][17] = grid[14][20] = grid[13][20] =
+    grid[10][20] = grid[ 9][20] = grid[ 8][20] = grid[ 7][20] = grid[ 5][21] =
+    grid[ 5][22] = grid[ 4][24] = grid[ 3][24] = grid[ 2][25] = grid[ 2][26] =
+    grid[ 2][27] = grid[ 3][29] = grid[ 4][29] = grid[ 6][29] = grid[ 9][29] =
+    grid[12][29] = grid[14][28] = grid[14][27] = grid[14][26] = grid[15][23] =
+    grid[18][24] = grid[19][27] = grid[22][26] = grid[23][23] = true;
+
+    total_steps = remaining_steps = num_steps;
+    consumed = 0;
+    agent_orientation = EAST;
+    agent_row = 0;
+    agent_col = 0;
+}
 
 static bool food_ahead()
 {
     int next_row, next_col;
 
     switch (agent_orientation) {
-    case NORTH: default: next_row = agent_row + 1; next_col = agent_col; break;
+    case NORTH: default: next_row = agent_row - 1; next_col = agent_col; break;
     case EAST: next_row = agent_row; next_col = agent_col + 1; break;
-    case SOUTH: next_row = agent_row - 1; next_col = agent_col; break;
+    case SOUTH: next_row = agent_row + 1; next_col = agent_col; break;
     case WEST: next_row = agent_row; next_col = agent_col - 1; break;
     }
 
@@ -86,9 +117,9 @@ static void move_forward()
         remaining_steps--;
 
         switch (agent_orientation) {
-        case NORTH: default: next_row = agent_row + 1; next_col = agent_col; break;
+        case NORTH: default: next_row = agent_row - 1; next_col = agent_col; break;
         case EAST: next_row = agent_row; next_col = agent_col + 1; break;
-        case SOUTH: next_row = agent_row - 1; next_col = agent_col; break;
+        case SOUTH: next_row = agent_row + 1; next_col = agent_col; break;
         case WEST: next_row = agent_row; next_col = agent_col - 1; break;
         }
 
@@ -98,13 +129,15 @@ static void move_forward()
         if (next_row >= GRID_ROWS) next_row = 0;
         if (next_col >= GRID_COLS) next_col = 0;
 
-        if (grid[next_row][next_col]) consumed++; /* food ahead */
+        if (grid[next_row][next_col]) consumed++;
         grid[next_row][next_col] = false;
 
         agent_row = next_row;
         agent_col = next_col;
     }
 }
+
+
 
 static void jump(char *symbol)
 {
@@ -176,38 +209,20 @@ static void execute(char *symbol)
 static double eval(struct gges_parameters *params, struct gges_individual *ind, void *args)
 {
 	char *buffer;
+    int used_steps;
 
     if (!ind->mapped) return DBL_MAX - 1.0;
 
-    grid[ 1][ 0] = grid[ 2][ 0] = grid[ 3][ 0] = grid[ 3][ 1] = grid[ 3][ 2] =
-        grid[ 3][ 3] = grid[ 3][ 4] = grid[ 3][ 5] = grid[ 4][ 5] = grid[ 5][ 5] =
-        grid[ 6][ 5] = grid[ 8][ 5] = grid[ 9][ 5] = grid[10][ 5] = grid[11][ 5] =
-        grid[12][ 5] = grid[12][ 6] = grid[12][ 7] = grid[12][ 8] = grid[12][ 9] =
-        grid[12][11] = grid[12][12] = grid[12][13] = grid[12][14] = grid[12][17] =
-        grid[12][18] = grid[12][19] = grid[12][20] = grid[12][21] = grid[12][22] =
-        grid[12][23] = grid[11][24] = grid[10][24] = grid[ 9][24] = grid[ 8][24] =
-        grid[ 7][24] = grid[ 4][24] = grid[ 3][24] = grid[ 1][25] = grid[ 1][26] =
-        grid[ 1][27] = grid[ 1][28] = grid[ 2][30] = grid[ 3][30] = grid[ 4][30] =
-        grid[ 5][30] = grid[ 7][29] = grid[ 7][28] = grid[ 8][27] = grid[ 9][27] =
-        grid[10][27] = grid[11][27] = grid[12][27] = grid[13][27] = grid[14][27] =
-        grid[16][26] = grid[16][25] = grid[16][24] = grid[16][21] = grid[16][20] =
-        grid[16][19] = grid[16][18] = grid[17][15] = grid[20][14] = grid[20][13] =
-        grid[20][10] = grid[20][ 9] = grid[20][ 8] = grid[20][ 7] = grid[21][ 5] =
-        grid[22][ 5] = grid[24][ 4] = grid[24][ 3] = grid[25][ 2] = grid[26][ 2] =
-        grid[27][ 2] = grid[29][ 3] = grid[29][ 4] = grid[29][ 6] = grid[29][ 9] =
-        grid[29][11] = grid[28][13] = grid[27][13] = grid[26][13] = grid[23][14] =
-        grid[24][17] = grid[27][18] = grid[26][21] = grid[23][22] = true;
-
-    remaining_steps = NUM_STEPS;
-    consumed = 0;
-    agent_orientation = EAST;
-    agent_row = 0;
-    agent_col = 0;
+    reset_ant(NUM_STEPS);
 
     buffer = malloc(strlen(ind->mapping->buffer) + 1);
 	while (remaining_steps > 0) {
         strcpy(buffer, ind->mapping->buffer);
+
+        used_steps = remaining_steps;
 		execute(strtok(buffer, " "));
+        used_steps -= remaining_steps;
+        if (used_steps == 0) break; /* for an infinite loop */
 	}
 
 	free(buffer);
@@ -249,7 +264,7 @@ int main(int argc, char **argv)
 
     params = gges_default_parameters();
     params->rnd = genrand_real2;
-    i = 2; while (i < argc) {
+    i = 3; while (i < argc) {
         if (strncmp(argv[i], "-p", 2) == 0) {
             process_parameter(argv[i + 1], params);
             i += 2;
@@ -257,6 +272,8 @@ int main(int argc, char **argv)
             parse_parameters(argv[i++], params);
         }
     }
+
+    NUM_STEPS = atoi(argv[2]);
 
     G = gges_load_bnf(argv[1]);
 

@@ -12,6 +12,10 @@ This library was created to give a clean-room implementation of both grammatical
 
 We have also provided the reference implementations of the problems from our GECCO paper, under the demo directory. Also within the demo directory is a trivial "template" application, from which you can start your own work.
 
+More recently (December 2016), we have included an implementation of Structured Grammatical Evolution (SGE), as presented in the GP & EM paper:
+
+Lourenço, Nuno, Francisco B. Pereira, and Ernesto Costa. "Unveiling the properties of structured grammatical evolution." Genetic Programming and Evolvable Machines: 1-39.
+
 Installation
 ------------
 

@@ -1,0 +1,23 @@
+## This is the grammar used in the GP&EM paper on SGE to define the
+## artificial ant problem. It is essentially the grammar used by
+## O'Neill and Ryan in the 2003 book (page 55), but with an additional
+## start non-terminal. We have modified the language of the terminal
+## symbols here from python to our interpreter's, but otherwise there
+## are no changes (save for explicit expansion of the recursive
+## productions to a depth of 6).
+<prog>   ::= 'begin ' <code> ' end'
+<code>   ::= <line> | <code_0> ' ' <line>
+<code_0> ::= <line> | <code_1> ' ' <line>
+<code_1> ::= <line> | <code_2> ' ' <line>
+<code_2> ::= <line> | <code_3> ' ' <line>
+<code_3> ::= <line> | <code_4> ' ' <line>
+<code_4> ::= <line> | <code_5> ' ' <line>
+<code_5> ::= <line> | <line> ' ' <line>
+<line>   ::= 'ifa begin ' <line_0> ' end begin ' <line_0> ' end' | <op>
+<line_0> ::= 'ifa begin ' <line_1> ' end begin ' <line_1> ' end' | <op>
+<line_1> ::= 'ifa begin ' <line_2> ' end begin ' <line_2> ' end' | <op>
+<line_2> ::= 'ifa begin ' <line_3> ' end begin ' <line_3> ' end' | <op>
+<line_3> ::= 'ifa begin ' <line_4> ' end begin ' <line_4> ' end' | <op>
+<line_4> ::= 'ifa begin ' <line_5> ' end begin ' <line_5> ' end' | <op>
+<line_5> ::= 'ifa begin ' <op>     ' end begin ' <op>     ' end' | <op>
+<op>     ::= 'tl' | 'tr' | 'mv'

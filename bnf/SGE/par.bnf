@@ -1,0 +1,14 @@
+## This is a grammar supplied as part of the SGE python codebase to
+## implement the 5-bit even parity problem. This is essentially the
+## same as the grammar that we used in our GECCO paper, but with an
+## explicit start non-terminal. The only other change is that we add
+## additional terminal productions for the data bits programmatically,
+## so only the first bit is needed here
+<start> ::= <B>
+<B>     ::= <B> ' and ' <B>
+          | <B> ' or ' <B>
+          | 'not ( ' <B> ' and ' <B> ' )'
+          | 'not ( ' <B> ' or ' <B> ' )'
+		  | <bit>
+<bit>   ::= 'b0' ## the remaining data bits are added to the grammar
+                 ## programmatically after the problem size is known

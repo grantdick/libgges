@@ -1,0 +1,15 @@
+## This is the grammar supplied in Nuno Lourenço's SGE python codebase
+## to implement the multiplexer problem. We have modified it slightly
+## so that the terminal productions for the data bits are added at
+## runtime (to allow various problem sizes to be used) and we have
+## modified the language of the terminals from python into the
+## language for our interpreter - the actual structure of the grammar
+## (relationship to non-terminals is unchanged)
+<start> ::= <B>
+<B>     ::= '( ' <B> ' ) and ( ' <B> ' )'
+          | '( ' <B> ' ) or ( ' <B> ' )'
+          | 'not ( ' <B> ' )'
+          | 'if ( ' <B> ' , ' <B> ' , ' <B> ' )'
+		  | <bit>
+<bit>   ::= 'b0' ## the remaining data and address bits are added to the
+                 ## grammar programmatically once the problem size is known

@@ -1,0 +1,15 @@
+This directory contains bnf grammars used previously in SGE research
+(some were found in previous work, some were supplied by Nuno Lourenço
+as part of his python codebase). There have been 1-2 changes to
+terminal symbols to make them compatible with the applications used in
+this codebase (e.g., in the artificial ant problem, the SGE bnf
+grammar uses python expressions, where in this codebase we have build
+a specific engine, of if ant.food_ahead() becomes ifa). The actual
+structure of the grammar (the relationship between non-terminals) is
+unchanged, so the search spaces should be the same.
+
+Each grammar is defined twice (where appropriate): once as the
+recursive version of the grammar, and another with an offline
+expansion of the recursive branches of the grammar (to a depth of
+6). Grammars that do contain recursive productions (naturally) have
+only one file.

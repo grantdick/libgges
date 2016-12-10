@@ -12,7 +12,7 @@ extern "C" {
     struct gges_bnf_grammar;
     struct gges_parameters;
 
-    enum gges_model_type { CONTEXT_FREE_GP, GRAMMATICAL_EVOLUTION };
+    enum gges_model_type { CONTEXT_FREE_GP, GRAMMATICAL_EVOLUTION, STRUCTURED_GRAMMATICAL_EVOLUTION };
     enum gges_generation_method { RANDOM_SEARCH, GENERATIONAL, STEADY_STATE, CUSTOM };
     enum gges_cfggp_node_selection { PICK_NODE_UNIFORM_RANDOM, PICK_NODE_KOZA_90_10, PICK_NODE_DEPTH_PROP };
 
@@ -38,11 +38,19 @@ extern "C" {
     struct gges_parameters {
         enum gges_model_type model;
 
+        /* global parameters, regardless of representation */
         int population_size;
         int generation_count;
 
         enum gges_generation_method generation_method;
-        int elitism_count;
+        double elitism_factor; /* if this is less than 1, then this is
+                                * the proportion of the population
+                                * (sorted by fitness) that is carried
+                                * into the next generation
+                                * unchanged. If this is >= 1, then it
+                                * is the exact number of individuals
+                                * from the previous generation carried
+                                * unchanged into the new generation */
 
         bool cache_fitness;
 
@@ -57,6 +65,7 @@ extern "C" {
         int init_min_depth;
         int init_max_depth;
 
+        /* Grammatical Evolution-specific parameters */
         int init_codon_count_min;
         int init_codon_count;
 
@@ -66,8 +75,14 @@ extern "C" {
 
         bool fixed_point_crossover;
 
+        /* CFG-GP-specific parameters */
         int maximum_mutation_depth;
         int maximum_tree_depth;
+
+        /* Structured GE-specific parameters (mainly for
+         * initialisation of the representation) */
+        int *sge_gene_sizes;
+        int sge_genome_size;
 
         GGES_EVAL eval;
 

@@ -1,0 +1,7 @@
+## This is the sample grammar used in the GP&EM paper to describe the
+## mapping and structure identification processes of SGE - it was
+## included here mainly for testing
+<start> ::= <expr> ' ' <op> ' ' <expr> | <expr>
+<expr>  ::= <term> ' ' <op> ' ' <term> | '( ' <term> ' ' <op> ' ' <term> ' )'
+<term>  ::= 'x' | '0.5'
+<op>    ::= '+' | '-' | '*' | '/'

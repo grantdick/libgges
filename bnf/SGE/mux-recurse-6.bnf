@@ -1,0 +1,46 @@
+## This is the grammar supplied in Nuno Lourenço's SGE python codebase
+## to implement the multiplexer problem. We have modified it slightly
+## so that the terminal productions for the data bits are added at
+## runtime (to allow various problem sizes to be used) and we have
+## modified the language of the terminals from python into the
+## language for our interpreter - the actual structure of the grammar
+## (relationship to non-terminals is unchanged). Finally, we have
+## expanded recursions in the grammar to a depth of 6.
+<start> ::= <B>
+<B>     ::= '( ' <B_0> ' ) and ( ' <B_0> ' )'
+          | '( ' <B_0> ' ) or ( ' <B_0> ' )'
+          | 'not ( ' <B_0> ' )'
+          | 'if ( ' <B_0> ' , ' <B_0> ' , ' <B_0> ' )'
+		  | <bit>
+<B_0>   ::= '( ' <B_1> ' ) and ( ' <B_1> ' )'
+          | '( ' <B_1> ' ) or ( ' <B_1> ' )'
+          | 'not ( ' <B_1> ' )'
+          | 'if ( ' <B_1> ' , ' <B_1> ' , ' <B_1> ' )'
+		  | <bit>
+<B_1>   ::= '( ' <B_2> ' ) and ( ' <B_2> ' )'
+          | '( ' <B_2> ' ) or ( ' <B_2> ' )'
+          | 'not ( ' <B_2> ' )'
+          | 'if ( ' <B_2> ' , ' <B_2> ' , ' <B_2> ' )'
+		  | <bit>
+<B_2>   ::= '( ' <B_3> ' ) and ( ' <B_3> ' )'
+          | '( ' <B_3> ' ) or ( ' <B_3> ' )'
+          | 'not ( ' <B_3> ' )'
+          | 'if ( ' <B_3> ' , ' <B_3> ' , ' <B_3> ' )'
+		  | <bit>
+<B_3>   ::= '( ' <B_4> ' ) and ( ' <B_4> ' )'
+          | '( ' <B_4> ' ) or ( ' <B_4> ' )'
+          | 'not ( ' <B_4> ' )'
+          | 'if ( ' <B_4> ' , ' <B_4> ' , ' <B_4> ' )'
+		  | <bit>
+<B_4>   ::= '( ' <B_5> ' ) and ( ' <B_5> ' )'
+          | '( ' <B_5> ' ) or ( ' <B_5> ' )'
+          | 'not ( ' <B_5> ' )'
+          | 'if ( ' <B_5> ' , ' <B_5> ' , ' <B_5> ' )'
+		  | <bit>
+<B_5>   ::= '( ' <bit> ' ) and ( ' <bit> ' )'
+          | '( ' <bit> ' ) or ( ' <bit> ' )'
+          | 'not ( ' <bit> ' )'
+          | 'if ( ' <bit> ' , ' <bit> ' , ' <bit> ' )'
+		  | <bit>
+<bit>   ::= 'b0' ## the remaining data and address bits are added to the
+                 ## grammar programmatically once the problem size is known
