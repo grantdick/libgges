@@ -268,8 +268,6 @@ void gges_cfggp_mutation(struct gges_bnf_grammar *g,
     int pidx;
     int allowed_depth;
 
-    if (rnd() > mutation_rate) return;
-
     /* pick a site in the tree */
     pidx = pick_subtree(&mp, *tree, NULL, node_sel, rnd);
 
