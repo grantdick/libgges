@@ -61,7 +61,7 @@ static void reset_ant(int num_steps)
     agent_col = 0;
 }
 
-static bool food_ahead()
+static bool food_ahead(void)
 {
     int next_row, next_col;
 
@@ -81,7 +81,7 @@ static bool food_ahead()
     return grid[next_row][next_col];
 }
 
-static void turn_left()
+static void turn_left(void)
 {
     if (remaining_steps > 0) {
         remaining_steps--;
@@ -95,7 +95,7 @@ static void turn_left()
     }
 }
 
-static void turn_right()
+static void turn_right(void)
 {
     if (remaining_steps > 0) {
         remaining_steps--;
@@ -109,7 +109,7 @@ static void turn_right()
 	}
 }
 
-static void move_forward()
+static void move_forward(void)
 {
     int next_row, next_col;
 

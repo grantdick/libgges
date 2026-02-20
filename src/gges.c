@@ -547,7 +547,7 @@ void gges_release_population(struct gges_population *pop)
 
 
 
-static double rnd()
+static double rnd(void)
 {
     return (double)rand() / (double)(1.0 + RAND_MAX);
 }
@@ -558,7 +558,7 @@ static double rnd()
 /*******************************************************************************
  * Public function implementations
  ******************************************************************************/
-struct gges_parameters *gges_default_parameters()
+struct gges_parameters *gges_default_parameters(void)
 {
 
     struct gges_parameters *def;

@@ -37,7 +37,7 @@ static bool sensible_init(struct gges_ge_codon_list *list,
 /*******************************************************************************
  * Public function implementations
  ******************************************************************************/
-struct gges_ge_codon_list *gges_ge_create_codon_list()
+struct gges_ge_codon_list *gges_ge_create_codon_list(void)
 {
     struct gges_ge_codon_list *list;
 

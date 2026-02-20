@@ -115,7 +115,7 @@ extern "C" {
     };
 
 
-    struct gges_bnf_grammar *gges_create_empty_grammar();
+    struct gges_bnf_grammar *gges_create_empty_grammar(void);
 
     void gges_register_data_field_generator(struct gges_bnf_grammar *g, char *key, gges_bnf_data_field_generator fn);
 

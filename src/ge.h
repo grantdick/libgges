@@ -27,7 +27,7 @@ extern "C" {
         size_t sz; /* the size of the buffer to hold the codons */
     };
 
-    struct gges_ge_codon_list *gges_ge_create_codon_list();
+    struct gges_ge_codon_list *gges_ge_create_codon_list(void);
     void gges_ge_release_codon_list(struct gges_ge_codon_list *list);
 
 

@@ -41,7 +41,7 @@ static struct gges_bnf_non_terminal *lookup_non_terminal(
 /*******************************************************************************
  * Public function implementations
  ******************************************************************************/
-struct gges_bnf_grammar *gges_create_empty_grammar()
+struct gges_bnf_grammar *gges_create_empty_grammar(void)
 {
     struct gges_bnf_grammar *g;
 
@@ -84,7 +84,7 @@ struct gges_bnf_grammar *gges_load_bnf(const char *file_name)
 {
     FILE *f;
     char *data;
-    long flen;
+    long flen, read;
     struct gges_bnf_grammar *g;
 
     flen = file_length(file_name);
@@ -97,8 +97,8 @@ struct gges_bnf_grammar *gges_load_bnf(const char *file_name)
     }
 
     data = ALLOC(flen + 1, sizeof(char), false);
-    fread(data, 1, flen, f);
-    data[flen] = '\0';
+    read = fread(data, 1, flen, f);
+    data[read] = '\0';
     fclose(f);
 
     g = gges_parse_bnf(data);
@@ -302,11 +302,30 @@ char *gges_bnf_init_data_field(struct gges_bnf_grammar *g, char *key, double (*r
 static long file_length(const char *file_name)
 {
     FILE *f;
-    long flen;
+    long flen = -1;
 
     f = fopen(file_name, "rb");
-    fseek(f, 0L, SEEK_END);
+    if (f == NULL) {
+        fprintf(stderr, "%s:%d - ERROR: Failed to open file %s\n",
+                __FILE__, __LINE__, file_name);
+        exit(EXIT_FAILURE);
+    }
+
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fprintf(stderr, "%s:%d - ERROR: Seeking to end of file file %s\n",
+                __FILE__, __LINE__, file_name);
+        fclose(f);
+        exit(EXIT_FAILURE);
+    }
+    
     flen = ftell(f);
+    if (flen < 0) {
+        fprintf(stderr, "%s:%d - ERROR: Could not get file position for %s\n",
+                __FILE__, __LINE__, file_name);
+        fclose(f);
+        exit(EXIT_FAILURE);
+    }
+
     fclose(f);
 
     return flen;

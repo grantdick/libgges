@@ -64,7 +64,7 @@ extern "C" {
     int gges_sge_compute_gene_sizes(struct gges_bnf_grammar *g,
                                     int **gene_sizes);
 
-    struct gges_sge_genome *gges_sge_create_genome();
+    struct gges_sge_genome *gges_sge_create_genome(void);
     void gges_sge_release_genome(struct gges_sge_genome *genome);
 
 

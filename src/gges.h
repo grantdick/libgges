@@ -100,7 +100,7 @@ extern "C" {
         struct gges_individual **members;
     };
 
-    struct gges_parameters *gges_default_parameters();
+    struct gges_parameters *gges_default_parameters(void);
 
     struct gges_population *gges_run_system(struct gges_parameters *params,
                                             struct gges_bnf_grammar *grammar,

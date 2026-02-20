@@ -45,7 +45,7 @@ extern "C" {
     };
 
     /* constructor and destructor for CFG-GP trees */
-    struct gges_cfggp_node *gges_cfggp_create_tree();
+    struct gges_cfggp_node *gges_cfggp_create_tree(void);
     void gges_cfggp_release_tree(struct gges_cfggp_node *tree);
 
     /* runs the process that maps the given tree into the

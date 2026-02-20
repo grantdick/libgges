@@ -20,7 +20,7 @@
 /*******************************************************************************
  * internal helper function prototypes
  ******************************************************************************/
-static struct gges_mapping *create_mapping();
+static struct gges_mapping *create_mapping(void);
 
 static void copy_mapping(struct gges_mapping *src, struct gges_mapping *dest);
 
@@ -298,7 +298,7 @@ void gges_mapping_append_symbol(struct gges_mapping *mapping, char *token)
 /*******************************************************************************
  * internal helper function implementations
  ******************************************************************************/
-static struct gges_mapping *create_mapping()
+static struct gges_mapping *create_mapping(void)
 {
     struct gges_mapping *mapping;
 
