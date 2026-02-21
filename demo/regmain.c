@@ -276,7 +276,8 @@ static double measure_rmse(struct gges_individual *ind, double **X, double *Y, i
     return isfinite(mse) ? sqrt(mse) : (DBL_MAX - 1.0);
 }
 
-static double eval(struct gges_parameters *params, struct gges_individual *ind, void *args)
+static double eval(struct gges_parameters *params __attribute__((unused)),
+                   struct gges_individual *ind, void *args)
 {
     struct data_set_details *data;
 
@@ -290,7 +291,8 @@ static double eval(struct gges_parameters *params, struct gges_individual *ind, 
 /* function that gets run at the end of each generation, simply prints
  * out the best individual's evaluation score, and the number of
  * invalid individuals in the population */
-static void report(struct gges_parameters *params, int G,
+static void report(struct gges_parameters *params __attribute__((unused)),
+                   int G,
                    struct gges_individual **members, int N,
                    void *args)
 {

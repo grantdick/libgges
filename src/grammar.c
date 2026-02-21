@@ -613,8 +613,7 @@ static void process_token(struct gges_bnf_grammar *g,
 
 
 
-static int get_non_terminal_depth(struct gges_bnf_grammar *g,
-                                  struct gges_bnf_non_terminal *nt)
+static int get_non_terminal_depth(struct gges_bnf_non_terminal *nt)
 {
     int i;
     int depth;
@@ -677,7 +676,7 @@ static void calculate_production_depths(struct gges_bnf_grammar *g)
                      * current non-terminal token. The representative
                      * depth is defined as the smallest minimum depth
                      * of all the non-terminal's productions */
-                    nt_depth = get_non_terminal_depth(g, t->nt);
+                    nt_depth = get_non_terminal_depth(t->nt);
 
                     if (nt_depth == 0) {
                         /* no productions for the the required

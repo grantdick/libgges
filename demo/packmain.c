@@ -139,7 +139,9 @@ static int local_search(struct packing_instance *instance, char *source)
 
 
 
-static double eval(struct gges_parameters *params, struct gges_individual *ind, void *args)
+static double eval(struct gges_parameters *params __attribute__((unused)),
+                   struct gges_individual *ind,
+                   void *args __attribute__((unused)))
 {
     double res;
 
@@ -159,9 +161,11 @@ static double eval(struct gges_parameters *params, struct gges_individual *ind, 
 /* function that gets run at the end of each generation, simply prints
  * out the best individual's evaluation score, and the number of
  * invalid individuals in the population */
-static void reset(struct gges_parameters *params, int G,
-                  struct gges_individual **members, int N,
-                  void *args)
+static void reset(struct gges_parameters *params __attribute__((unused)),
+                  int G __attribute__((unused)),
+                  struct gges_individual **members __attribute__((unused)),
+                  int N __attribute__((unused)),
+                  void *args __attribute__((unused)))
 {
     shuffle_packing_list(instances[0]);
 }
@@ -171,9 +175,10 @@ static void reset(struct gges_parameters *params, int G,
 /* function that gets run at the end of each generation, simply prints
  * out the best individual's evaluation score, and the number of
  * invalid individuals in the population */
-static void report(struct gges_parameters *params, int G,
+static void report(struct gges_parameters *params __attribute__((unused)),
+                   int G,
                    struct gges_individual **members, int N,
-                   void *args)
+                   void *args __attribute__((unused)))
 {
     int i, j, invalid, res, cnt;
     double best_objective, best_deviation, mean_test_deviation;

@@ -87,8 +87,7 @@ extern "C" {
      * that returns values in [0,1) */
     bool gges_sge_random_init(struct gges_bnf_grammar *g,
                               struct gges_sge_genome *genome,
-                              int *gene_sizes, int genome_size,
-                              double (*rnd)(void));
+                              int *gene_sizes, double (*rnd)(void));
 
     void gges_sge_reproduction(struct gges_sge_genome *p,
                               struct gges_sge_genome *o);

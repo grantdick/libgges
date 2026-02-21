@@ -11,7 +11,7 @@ INCS:=$(wildcard $(SRCDIR)/*.h)
 OBJS:=$(subst $(SRCDIR)/,$(OBJDIR)/,$(patsubst %.c,%.o,$(wildcard $(SRCDIR)/*.c)))
 DEMO_OBJS=$(OBJDIR)/mt19937ar.o $(OBJDIR)/parameters.o $(OBJDIR)/readline.o
 
-CFLAGS:=-std=c99 -Wall -pedantic -march=native -O3 -g
+CFLAGS:=-std=c99 -Wall -Wextra -pedantic -march=native -O3 -g
 IFLAGS:=-I$(INCDIR)
 LFLAGS:=-L$(LIBDIR) -lgges -lm
 

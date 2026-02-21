@@ -39,7 +39,19 @@ static struct gges_cfggp_node *perform_tree_swap(struct gges_cfggp_node **tree,
                                                  int pick_idx,
                                                  struct gges_cfggp_node *rep);
 
+static void gges_cfggp_crossover(struct gges_cfggp_node *mother,
+                                 struct gges_cfggp_node *father,
+                                 struct gges_cfggp_node **daughter,
+                                 struct gges_cfggp_node **son,
+                                 int max_depth,
+                                 enum gges_cfggp_node_selection node_sel,
+                                 double (*rnd)(void));
 
+static void gges_cfggp_mutation(struct gges_bnf_grammar *g,
+                                struct gges_cfggp_node **tree,
+                                int mut_depth, int max_depth,
+                                enum gges_cfggp_node_selection node_sel,
+                                double (*rnd)(void));
 
 
 
@@ -108,8 +120,8 @@ bool gges_cfggp_random_init(struct gges_bnf_grammar *g,
 
 bool gges_cfggp_sensible_init(struct gges_bnf_grammar *g,
                               struct gges_cfggp_node **tree,
-                                int min_depth, int max_depth,
-                                double (*rnd)(void))
+                              int min_depth, int max_depth,
+                              double (*rnd)(void))
 {
     struct gges_bnf_non_terminal *start;
 
@@ -153,153 +165,6 @@ void gges_cfggp_reproduction(struct gges_cfggp_node *parent,
 
 
 
-void gges_cfggp_crossover(struct gges_cfggp_node *mother,
-                          struct gges_cfggp_node *father,
-                          struct gges_cfggp_node **daughter,
-                          struct gges_cfggp_node **son,
-                          int max_depth,
-                          enum gges_cfggp_node_selection node_sel,
-                          double (*rnd)(void))
-{
-    struct gges_cfggp_node *d_cp, *s_cp, *tmp;
-    int d_pidx, s_pidx;
-    int d_allowed_depth, s_allowed_depth;
-    bool d_ok, s_ok;
-
-    /* first, make clones of the parents */
-    gges_cfggp_reproduction(mother, daughter);
-    gges_cfggp_reproduction(father, son);
-
-    /* then, pick crossover points in the offspring. We need to loop
-     * this process, as we may select a non-terminal in the first
-     * offspring that does not exist in the second. As both offspring
-     * will have at least one non-terminal in common (the start
-     * symbol), this loop is guaranteed to terminate at some stage,
-     * and will probably never exceed a single iteration in any
-     * problem of reasonable complexity */
-    do {
-        d_pidx = pick_subtree(&d_cp, *daughter, NULL, node_sel, rnd);
-        s_pidx = pick_subtree(&s_cp, *son, d_cp->p->nt, node_sel, rnd);
-    } while (s_cp == NULL);
-
-    /* and then work out how big the spliced-in trees can be in each
-     * of the offspring, to ensure that we are not exceeding crossover
-     * depths as defined by the system */
-    if (max_depth > 0) {
-        /* depth limiting is being used, so work out available depth
-         * in each offspring tree */
-        d_allowed_depth = max_depth;
-        tmp = d_cp;
-        while ((tmp = tmp->parent) != NULL) d_allowed_depth--;
-
-        s_allowed_depth = max_depth;
-        tmp = s_cp;
-        while ((tmp = tmp->parent) != NULL) s_allowed_depth--;
-
-        /* then, test the validity of each chosen crossover point */
-        d_ok = s_cp->depth <= d_allowed_depth;
-        s_ok = d_cp->depth <= s_allowed_depth;
-    } else {
-        /* if no depth limiting is used, then the offspring can be
-         * crossed without examination */
-        d_ok = true;
-        s_ok = true;
-    }
-
-    /* finally, perform the crossover */
-    if (d_ok && s_ok) {
-        /* perform a straight swap of subtrees, no additional memory copying required */
-        if (d_cp == *daughter) {
-            *daughter = s_cp;
-        } else {
-            d_cp->parent->children[d_pidx] = s_cp;
-        }
-        if (s_cp == *son) {
-            *son = d_cp;
-        } else {
-            s_cp->parent->children[s_pidx] = d_cp;
-        }
-
-        tmp = d_cp->parent;
-        d_cp->parent = s_cp->parent;
-        s_cp->parent = tmp;
-
-        /* recalculate depths in the offspring */
-        calculate_depths(*daughter);
-        calculate_depths(*son);
-    } else if (d_ok) {
-        /* in this case, the crossover operation will result in the
-         * son offspring being too large, but a daughter that is of
-         * suitable size. In this case, we need to make a copy of the
-         * subtree that we selected from the son, splice that into the
-         * daughter, and leave the other offspring unchanged */
-        s_cp = replicate_tree(s_cp);
-
-        tmp = perform_tree_swap(daughter, d_cp, d_pidx, s_cp);
-        gges_cfggp_release_tree(tmp);
-
-        calculate_depths(*daughter);
-    } else if (s_ok) {
-        /* in this case, the crossover operation will result in the
-         * daughter offspring being too large, but a son that is of
-         * suitable size. In this case, we need to make a copy of the
-         * subtree that we selected from the daughter, splice that
-         * into the son, and leave the other offspring unchanged */
-        d_cp = replicate_tree(d_cp);
-
-        tmp = perform_tree_swap(son, s_cp, s_pidx, d_cp);
-        gges_cfggp_release_tree(tmp);
-
-        calculate_depths(*son);
-    }
-}
-
-
-
-void gges_cfggp_mutation(struct gges_bnf_grammar *g,
-                         struct gges_cfggp_node **tree,
-                         double mutation_rate,
-                         int mut_depth, int max_depth,
-                         enum gges_cfggp_node_selection node_sel,
-                         double (*rnd)(void))
-{
-    struct gges_cfggp_node *mp, *mut, *tmp;
-
-    int pidx;
-    int allowed_depth;
-
-    /* pick a site in the tree */
-    pidx = pick_subtree(&mp, *tree, NULL, node_sel, rnd);
-
-    /* we need to ensure that the mutation of the tree does not
-     * exceed the depth limits of the system. We can do this by
-     * ensuring that the maximum depth of the mutant subtree is not
-     * greater than the remaining availble tree depth at the point of
-     * mutation */
-    if (max_depth > 0) {
-        allowed_depth = max_depth;
-        tmp = mp;
-        while ((tmp = tmp->parent) != NULL) allowed_depth--;
-
-        if (mut_depth > allowed_depth) mut_depth = allowed_depth;
-    }
-
-    /* grow a mutant subtree using the non-terminal LHS of the
-     * production of the identified site */
-    sensible_init(g, &mut, mp->p->nt, 1, 1, mut_depth, rnd);
-
-    /* swap the subtree with the mutant */
-    tmp = perform_tree_swap(tree, mp, pidx, mut);
-
-    /* cleanup the old subtree that was removed from the tree */
-    gges_cfggp_release_tree(tmp);
-
-    /* recalculate depths in the genome */
-    calculate_depths(*tree);
-}
-
-
-
 bool gges_cfggp_breed(struct gges_bnf_grammar *g,
                       struct gges_cfggp_node *mother,
                       struct gges_cfggp_node *father,
@@ -321,8 +186,8 @@ bool gges_cfggp_breed(struct gges_bnf_grammar *g,
         gges_cfggp_reproduction(father, son);
 
         if (p < (pm + pc)) {
-            gges_cfggp_mutation(g, daughter, pm, mut_depth, max_depth, node_sel, rnd);
-            gges_cfggp_mutation(g, son, pm, mut_depth, max_depth, node_sel, rnd);
+            gges_cfggp_mutation(g, daughter, mut_depth, max_depth, node_sel, rnd);
+            gges_cfggp_mutation(g, son, mut_depth, max_depth, node_sel, rnd);
 
             return false;
         }
@@ -715,4 +580,150 @@ static struct gges_cfggp_node *perform_tree_swap(struct gges_cfggp_node **tree,
 
         return pick;
     }
+}
+
+
+
+static void gges_cfggp_crossover(struct gges_cfggp_node *mother,
+                                 struct gges_cfggp_node *father,
+                                 struct gges_cfggp_node **daughter,
+                                 struct gges_cfggp_node **son,
+                                 int max_depth,
+                                 enum gges_cfggp_node_selection node_sel,
+                                 double (*rnd)(void))
+{
+    struct gges_cfggp_node *d_cp, *s_cp, *tmp;
+    int d_pidx, s_pidx;
+    int d_allowed_depth, s_allowed_depth;
+    bool d_ok, s_ok;
+
+    /* first, make clones of the parents */
+    gges_cfggp_reproduction(mother, daughter);
+    gges_cfggp_reproduction(father, son);
+
+    /* then, pick crossover points in the offspring. We need to loop
+     * this process, as we may select a non-terminal in the first
+     * offspring that does not exist in the second. As both offspring
+     * will have at least one non-terminal in common (the start
+     * symbol), this loop is guaranteed to terminate at some stage,
+     * and will probably never exceed a single iteration in any
+     * problem of reasonable complexity */
+    do {
+        d_pidx = pick_subtree(&d_cp, *daughter, NULL, node_sel, rnd);
+        s_pidx = pick_subtree(&s_cp, *son, d_cp->p->nt, node_sel, rnd);
+    } while (s_cp == NULL);
+
+    /* and then work out how big the spliced-in trees can be in each
+     * of the offspring, to ensure that we are not exceeding crossover
+     * depths as defined by the system */
+    if (max_depth > 0) {
+        /* depth limiting is being used, so work out available depth
+         * in each offspring tree */
+        d_allowed_depth = max_depth;
+        tmp = d_cp;
+        while ((tmp = tmp->parent) != NULL) d_allowed_depth--;
+
+        s_allowed_depth = max_depth;
+        tmp = s_cp;
+        while ((tmp = tmp->parent) != NULL) s_allowed_depth--;
+
+        /* then, test the validity of each chosen crossover point */
+        d_ok = s_cp->depth <= d_allowed_depth;
+        s_ok = d_cp->depth <= s_allowed_depth;
+    } else {
+        /* if no depth limiting is used, then the offspring can be
+         * crossed without examination */
+        d_ok = true;
+        s_ok = true;
+    }
+
+    /* finally, perform the crossover */
+    if (d_ok && s_ok) {
+        /* perform a straight swap of subtrees, no additional memory copying required */
+        if (d_cp == *daughter) {
+            *daughter = s_cp;
+        } else {
+            d_cp->parent->children[d_pidx] = s_cp;
+        }
+        if (s_cp == *son) {
+            *son = d_cp;
+        } else {
+            s_cp->parent->children[s_pidx] = d_cp;
+        }
+
+        tmp = d_cp->parent;
+        d_cp->parent = s_cp->parent;
+        s_cp->parent = tmp;
+
+        /* recalculate depths in the offspring */
+        calculate_depths(*daughter);
+        calculate_depths(*son);
+    } else if (d_ok) {
+        /* in this case, the crossover operation will result in the
+         * son offspring being too large, but a daughter that is of
+         * suitable size. In this case, we need to make a copy of the
+         * subtree that we selected from the son, splice that into the
+         * daughter, and leave the other offspring unchanged */
+        s_cp = replicate_tree(s_cp);
+
+        tmp = perform_tree_swap(daughter, d_cp, d_pidx, s_cp);
+        gges_cfggp_release_tree(tmp);
+
+        calculate_depths(*daughter);
+    } else if (s_ok) {
+        /* in this case, the crossover operation will result in the
+         * daughter offspring being too large, but a son that is of
+         * suitable size. In this case, we need to make a copy of the
+         * subtree that we selected from the daughter, splice that
+         * into the son, and leave the other offspring unchanged */
+        d_cp = replicate_tree(d_cp);
+
+        tmp = perform_tree_swap(son, s_cp, s_pidx, d_cp);
+        gges_cfggp_release_tree(tmp);
+
+        calculate_depths(*son);
+    }
+}
+
+
+
+static void gges_cfggp_mutation(struct gges_bnf_grammar *g,
+                                struct gges_cfggp_node **tree,
+                                int mut_depth, int max_depth,
+                                enum gges_cfggp_node_selection node_sel,
+                                double (*rnd)(void))
+{
+    struct gges_cfggp_node *mp, *mut, *tmp;
+
+    int pidx;
+    int allowed_depth;
+
+    /* pick a site in the tree */
+    pidx = pick_subtree(&mp, *tree, NULL, node_sel, rnd);
+
+    /* we need to ensure that the mutation of the tree does not
+     * exceed the depth limits of the system. We can do this by
+     * ensuring that the maximum depth of the mutant subtree is not
+     * greater than the remaining availble tree depth at the point of
+     * mutation */
+    if (max_depth > 0) {
+        allowed_depth = max_depth;
+        tmp = mp;
+        while ((tmp = tmp->parent) != NULL) allowed_depth--;
+
+        if (mut_depth > allowed_depth) mut_depth = allowed_depth;
+    }
+
+    /* grow a mutant subtree using the non-terminal LHS of the
+     * production of the identified site */
+    sensible_init(g, &mut, mp->p->nt, 1, 1, mut_depth, rnd);
+
+    /* swap the subtree with the mutant */
+    tmp = perform_tree_swap(tree, mp, pidx, mut);
+
+    /* cleanup the old subtree that was removed from the tree */
+    gges_cfggp_release_tree(tmp);
+
+    /* recalculate depths in the genome */
+    calculate_depths(*tree);
 }

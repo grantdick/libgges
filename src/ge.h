@@ -45,8 +45,7 @@ extern "C" {
      * number of random codon values. The last parameter is a
      * pseudorandom number generator function pointer that returns
      * values in [0,1) */
-    bool gges_ge_random_init(struct gges_bnf_grammar *g,
-                             struct gges_ge_codon_list *list,
+    bool gges_ge_random_init(struct gges_ge_codon_list *list,
                              int codon_count,
                              double (*rnd)(void));
 

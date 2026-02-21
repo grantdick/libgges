@@ -109,8 +109,7 @@ void gges_sge_release_genome(struct gges_sge_genome *genome)
 
 bool gges_sge_random_init(struct gges_bnf_grammar *g,
                           struct gges_sge_genome *genome,
-                          int *gene_sizes, int genome_size,
-                          double (*rnd)(void))
+                          int *gene_sizes, double (*rnd)(void))
 {
     int i, nt;
 

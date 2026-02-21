@@ -202,8 +202,8 @@ int gges_derivation_tree_depth(struct gges_derivation_tree *dt)
 
 
 
-int gges_derivation_edit_distance(struct gges_derivation_tree *a,
-                                  struct gges_derivation_tree *b)
+int gges_derivation_edit_distance(struct gges_derivation_tree *a __attribute__((unused)),
+                                  struct gges_derivation_tree *b __attribute__((unused)))
 {
     /* to be completed */
     return 0;

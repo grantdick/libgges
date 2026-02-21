@@ -143,11 +143,11 @@ void gges_init_individual(struct gges_parameters *params,
                                   params->rnd);
         } else {
             if (params->init_codon_count_min < 0) {
-                gges_ge_random_init(g, ind->representation.list,
+                gges_ge_random_init(ind->representation.list,
                                     params->init_codon_count,
                                     params->rnd);
             } else {
-                gges_ge_random_init(g, ind->representation.list,
+                gges_ge_random_init(ind->representation.list,
                                     params->init_codon_count_min
                                     + (int)(params->rnd() * (params->init_codon_count
                                                              - params->init_codon_count_min)),
@@ -159,8 +159,7 @@ void gges_init_individual(struct gges_parameters *params,
             params->sge_genome_size = gges_sge_compute_gene_sizes(g, &(params->sge_gene_sizes));
         }
         gges_sge_random_init(g, ind->representation.genome,
-                             params->sge_gene_sizes, params->sge_genome_size,
-                             params->rnd);
+                             params->sge_gene_sizes, params->rnd);
     } else {
         if (params->sensible_initialisation) {
             gges_cfggp_sensible_init(g, &(ind->representation.tree),
@@ -266,7 +265,7 @@ void gges_breed(struct gges_parameters *params,
 
 void gges_mapping_append_symbol(struct gges_mapping *mapping, char *token)
 {
-    int tlen;
+    size_t tlen;
 
     if (mapping) {
         tlen = strlen(token);
@@ -314,8 +313,11 @@ static struct gges_mapping *create_mapping(void)
 
 static void copy_mapping(struct gges_mapping *src, struct gges_mapping *dest)
 {
-    if (dest->sz < (src->l + 1)) {
-        while (dest->sz < (src->l + 1)) dest->sz += BUFFER_INC;
+    size_t src_sz;
+    
+    src_sz = src->l + 1;
+    if (dest->sz < src_sz) {
+        while (dest->sz < src_sz) dest->sz += BUFFER_INC;
         dest->buffer = REALLOC(dest->buffer, dest->sz, sizeof(char));
     }
 

@@ -26,7 +26,7 @@ struct details {
     int b;
 };
 
-static bool **generate_data(int bits)
+static bool **generate_data(unsigned int bits)
 {
     unsigned int i, j, n, sum;
     bool **data;
@@ -258,7 +258,8 @@ static int measure(struct gges_individual *ind, bool **X, int n, int b)
     return (1 << b) - score;
 }
 
-static double eval(struct gges_parameters *params, struct gges_individual *ind, void *args)
+static double eval(struct gges_parameters *params __attribute__((unused)),
+                   struct gges_individual *ind, void *args)
 {
     struct details *data;
 
@@ -272,9 +273,9 @@ static double eval(struct gges_parameters *params, struct gges_individual *ind, 
 /* function that gets run at the end of each generation, simply prints
  * out the best individual's evaluation score, and the number of
  * invalid individuals in the population */
-static void report(struct gges_parameters *params, int G,
-                   struct gges_individual **members, int N,
-                   void *args)
+static void report(struct gges_parameters *params __attribute__((unused)),
+                   int G, struct gges_individual **members, int N,
+                   void *args __attribute__((unused)))
 {
     int i, invalid;
     double best_objective;

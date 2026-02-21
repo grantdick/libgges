@@ -7,9 +7,6 @@ extern "C" {
 
     #include <stdio.h>
 
-    void load_data(char *source_file, double ***features, double **resp,
-                   int *N, int *p, double *mean_rmse);
-
     void load_fold(char *source_file, char *fold_file, int fold,
                    double ***trainX, double **trainY, int *n_train,
                    double ***testX, double **testY, int *n_test,

@@ -57,8 +57,7 @@ void gges_ge_release_codon_list(struct gges_ge_codon_list *list)
 
 
 
-bool gges_ge_random_init(struct gges_bnf_grammar *g,
-                         struct gges_ge_codon_list *list,
+bool gges_ge_random_init(struct gges_ge_codon_list *list,
                          int codon_count,
                          double (*rnd)(void))
 {

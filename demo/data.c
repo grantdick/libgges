@@ -112,30 +112,6 @@ static double compute_rmse(double *Y, int n)
     return sqrt(mse);
 }
 
-void load_data(char *source_file, double ***features, double **resp,
-               int *N, int *p, double *mean_rmse)
-{
-    int i;
-    double **all_data, **X, *Y;
-
-    all_data = read_values(source_file, N, p);
-    (*p)--;
-
-    X = malloc(*N * sizeof(double *));
-    X[0] = malloc(*N * *p * sizeof(double));
-    Y = malloc(*N * sizeof(double));
-    for (i = 0; i < *N; ++i) {
-        X[i] = X[0] + (i * *p);
-        memcpy(X[i], all_data[i], *p * sizeof(double));
-        Y[i] = all_data[i][*p];
-    }
-    *features = X;
-    *resp = Y;
-
-    free(all_data[0]);
-    free(all_data);
-}
-
 double *col_means(double **X, double *Y, int r, int c)
 {
     int i, j;

@@ -31,7 +31,7 @@ static int readline(char **lineptr, size_t *n, FILE *stream)
     }
     p = bufptr;
     while(c != EOF) {
-    	if ((p - bufptr) > (size - 1)) {
+    	if ((size_t)(p - bufptr) > (size - 1)) {
     		size += BUFSIZ;
     		bufptr = realloc(bufptr, size);
     		if (bufptr == NULL) {
